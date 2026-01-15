@@ -44,6 +44,8 @@ pipeline {
                             configName: 'ansible',
                             transfers: [
                                 sshTransfer(
+				    sourceFiles: 'ansible/**,code/**',
+                                    remoteDirectory: '/projects/multi-branch-testing',	
                                     execCommand: '''
                                         cd /projects/multi-branch-testing/ansible &&
                                         ansible-playbook -i hosts deploy.yml --limit prod
