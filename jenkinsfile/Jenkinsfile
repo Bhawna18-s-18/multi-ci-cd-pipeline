@@ -21,13 +21,13 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     sourceFiles: 'ansible/**',
-                                    remoteDirectory: '/projects/multi-branch-testing'
+                                    remoteDirectory: '/projects/multi-branch-testing',
+                                    execCommand: '''
+                                        cd /projects/multi-branch-testing/ansible &&
+                                        ansible-playbook -i hosts deploy.yml --limit dev
+                                    '''
                                 )
-                            ],
-                            execCommand: '''
-                                cd /projects/multi-branch-testing/ansible &&
-                                ansible-playbook -i hosts deploy.yml --limit dev
-                            '''
+                            ]
                         )
                     ]
                 )
@@ -43,10 +43,14 @@ pipeline {
                     publishers: [
                         sshPublisherDesc(
                             configName: 'ansible',
-                            execCommand: '''
-                                cd /projects/multi-branch-testing/ansible &&
-                                ansible-playbook -i hosts deploy.yml --limit prod
-                            '''
+                            transfers: [
+                                sshTransfer(
+                                    execCommand: '''
+                                        cd /projects/multi-branch-testing/ansible &&
+                                        ansible-playbook -i hosts deploy.yml --limit prod
+                                    '''
+                                )
+                            ]
                         )
                     ]
                 )
