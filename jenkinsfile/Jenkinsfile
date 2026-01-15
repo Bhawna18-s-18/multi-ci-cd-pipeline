@@ -36,6 +36,12 @@ pipeline {
         }
     }
 
+stage('Debug Branch') {
+    steps {
+        echo "BRANCH_NAME = ${env.BRANCH_NAME}"
+    }
+}
+
     post {
         success {
             echo "Deployment successful"
