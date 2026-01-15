@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh '''
                 cd ../ansible
-                ansible-playbook -i hosts deploy.yml
+                ansible-playbook -i hosts deploy.yml -e target=dev
                 '''
             }
         }
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 sh '''
                 cd ../ansible
-                ansible-playbook -i hosts deploy.yml
+                ansible-playbook -i hosts deploy.yml -e target=prod
                 '''
             }
         }
