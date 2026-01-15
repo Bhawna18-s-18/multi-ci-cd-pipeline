@@ -9,30 +9,30 @@ pipeline {
             }
         }
 
-        stage('Deploy to Dev') {
-            when {
-                branch 'dev'
-            }
-            steps {
-                sh '''
-                cd ansible
-                ansible-playbook -i inventory-dev deploy.yml
-                '''
-            }
-        }
-
-        stage('Deploy to Prod') {
-            when {
-                branch 'main'
-            }
-            steps {
-                sh '''
-                cd ansible
-                ansible-playbook -i inventory-prod deploy.yml
-                '''
-            }
-        }
+	stage('Deploy to Dev') {
+   	 when {
+       		 branch 'dev'
     }
+    	steps {
+        	sh '''
+       		 cd ansible
+       			 ansible-playbook -i inventory deploy.yml --limit dev
+        		'''
+    }
+}
+
+	stage('Deploy to Prod') {
+   	 when {
+       		 branch 'main'
+   	 }
+
+    steps {
+        sh '''
+        cd ansible
+        ansible-playbook -i inventory deploy.yml --limit prod
+        '''
+    }
+}
 
     post {
         success {
