@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh '''
                 cd ansible
-                ansible-playbook -i inventory-dev deploy.yml
+                ansible-playbook -i hosts deploy.yml
                 '''
             }
         }
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 sh '''
                 cd ansible
-                ansible-playbook -i inventory-prod deploy.yml
+                ansible-playbook -i hosts deploy.yml
                 '''
             }
         }
