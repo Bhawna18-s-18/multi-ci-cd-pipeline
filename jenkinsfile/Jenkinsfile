@@ -20,7 +20,7 @@ pipeline {
                             configName: 'ansible',
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'ansible/**',
+                                    sourceFiles: 'ansible/**,code/**',
                                     remoteDirectory: '/projects/multi-branch-testing',
                                     execCommand: '''
                                         cd /projects/multi-branch-testing/ansible &&
