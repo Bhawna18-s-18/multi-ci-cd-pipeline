@@ -3,43 +3,57 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
-	stage('Deploy to Dev') {
-   	 when {
-       		 branch 'dev'
-    }
-    	steps {
-        	sh '''
-       		 cd ansible
-       			 ansible-playbook -i inventory deploy.yml --limit dev
-        		'''
-    }
-}
-
-	stage('Deploy to Prod') {
-   	 when {
-       		 branch 'main'
-   	 }
-
-    steps {
-        sh '''
-        cd ansible
-        ansible-playbook -i inventory deploy.yml --limit prod
-        '''
-    }
-}
-
-    post {
-        success {
-            echo "Deployment successful"
+        stage('Deploy to Dev') {
+            when {
+                expression { env.GIT_BRANCH?.endsWith('/dev') }
+            }
+            steps {
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'ansible',
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'ansible/**,code/**',
+                                    remoteDirectory: '/projects/multi-branch-testing',
+                                    execCommand: '''
+                                        cd /projects/multi-branch-testing/ansible &&
+                                        ansible-playbook -i hosts deploy.yml --limit dev
+                                    '''
+                                )
+                            ]
+                        )
+                    ]
+                )
+            }
         }
-        failure {
-            echo "Deployment failed"
+
+        stage('Deploy to Prod') {
+            when {
+                expression { env.GIT_BRANCH?.endsWith('/main') }
+            }
+            steps {
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'ansible',
+                            transfers: [
+                                sshTransfer(
+                                    execCommand: '''
+                                        cd /projects/multi-branch-testing/ansible &&
+                                        ansible-playbook -i hosts deploy.yml --limit prod
+                                    '''
+                                )
+                            ]
+                        )
+                    ]
+                )
+            }
         }
     }
 }

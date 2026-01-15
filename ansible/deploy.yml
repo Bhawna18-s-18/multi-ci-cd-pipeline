@@ -1,7 +1,8 @@
 ---
+
+  
 - name: Deploy application
-  hosts: web
-  become: yes
+  hosts: all
 
   tasks:
     - name: Install Apache
