@@ -3,7 +3,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
@@ -14,10 +14,23 @@ pipeline {
                 expression { env.GIT_BRANCH?.endsWith('/dev') }
             }
             steps {
-                sh '''
-                cd ../ansible
-                ansible-playbook -i hosts deploy.yml -e target=dev
-                '''
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'ansible',
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'ansible/**',
+                                    remoteDirectory: '/projects/multi-branch-testing'
+                                )
+                            ],
+                            execCommand: '''
+                                cd /projects/multi-branch-testing/ansible &&
+                                ansible-playbook -i hosts deploy.yml --limit dev
+                            '''
+                        )
+                    ]
+                )
             }
         }
 
@@ -26,17 +39,18 @@ pipeline {
                 expression { env.GIT_BRANCH?.endsWith('/main') }
             }
             steps {
-                sh '''
-                cd ../ansible
-                ansible-playbook -i hosts deploy.yml -e target=prod
-                '''
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'ansible',
+                            execCommand: '''
+                                cd /projects/multi-branch-testing/ansible &&
+                                ansible-playbook -i hosts deploy.yml --limit prod
+                            '''
+                        )
+                    ]
+                )
             }
-        }
-    }
-
-    post {
-        success {
-            echo "Deployment successful"
         }
     }
 }
