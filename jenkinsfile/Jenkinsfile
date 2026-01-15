@@ -34,12 +34,13 @@ pipeline {
                 '''
             }
         }
-    }
+    
 
-stage('Debug Branch') {
+	stage('Debug Branch') {
     steps {
         echo "BRANCH_NAME = ${env.BRANCH_NAME}"
     }
+}
 }
 
     post {
