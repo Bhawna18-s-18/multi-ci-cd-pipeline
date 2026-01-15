@@ -11,8 +11,7 @@ pipeline {
 
         stage('Deploy to Dev') {
             when {
-            expression { env.BRANCH_NAME == 'dev' }
-
+                expression { env.GIT_BRANCH?.endsWith('/dev') }
             }
             steps {
                 sh '''
@@ -24,8 +23,7 @@ pipeline {
 
         stage('Deploy to Prod') {
             when {
-                 expression { env.BRANCH_NAME == 'main' }
-
+                expression { env.GIT_BRANCH?.endsWith('/main') }
             }
             steps {
                 sh '''
@@ -34,21 +32,11 @@ pipeline {
                 '''
             }
         }
-    
-
-	stage('Debug Branch') {
-    steps {
-        echo "BRANCH_NAME = ${env.BRANCH_NAME}"
     }
-}
-}
 
     post {
         success {
             echo "Deployment successful"
-        }
-        failure {
-            echo "Deployment failed"
         }
     }
 }
