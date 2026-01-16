@@ -8,33 +8,35 @@ pipeline {
                 checkout scm
             }
         }
+
         stage('Deploy to Dev') {
             when {
                 expression { env.GIT_BRANCH?.endsWith('/dev') }
             }
-            steps{
-		 withCredentials([
-                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
-                ]) 
-		{
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'ansible',
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: 'ansible/**,code/**',
-                                    remoteDirectory: '/projects/multi-branch-testing',
-                                    execCommand: '''
-                                        cd /projects/multi-branch-testing/ansible &&
-                                        ansible-playbook -i hosts deploy.yml --limit dev \
-					--vault-password-file <(echo $VAULT_PASS)
-                                    '''
-                                )
-                            ]
-                        )
-                    ]
-                )
+            steps {
+                withCredentials([
+                    string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')
+                ]) {
+                    sshPublisher(
+                        publishers: [
+                            sshPublisherDesc(
+                                configName: 'ansible',
+                                transfers: [
+                                    sshTransfer(
+                                        sourceFiles: 'ansible/**,code/**',
+                                        remoteDirectory: '/projects/multi-branch-testing',
+                                        execCommand: '''
+                                            cd /projects/multi-branch-testing/ansible &&
+                                            ansible-playbook -i hosts deploy.yml \
+                                            --limit dev \
+                                            --vault-password-file <(echo $VAULT_PASS)
+                                        '''
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                }
             }
         }
 
@@ -43,28 +45,29 @@ pipeline {
                 expression { env.GIT_BRANCH?.endsWith('/main') }
             }
             steps {
-		withCredentials([
-                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
-                ])
-		 {
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'ansible',
-                            transfers: [
-                                sshTransfer(
-				    sourceFiles: 'ansible/**,code/**',
-                                    remoteDirectory: '/projects/multi-branch-testing',	
-                                    execCommand: '''
-                                        cd /projects/multi-branch-testing/ansible &&
-                                        ansible-playbook -i hosts deploy.yml --limit prod \
-					--vault-password-file <(echo $VAULT_PASS)
-                                    '''
-                                )
-                            ]
-                        )
-                    ]
-                )
+                withCredentials([
+                    string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')
+                ]) {
+                    sshPublisher(
+                        publishers: [
+                            sshPublisherDesc(
+                                configName: 'ansible',
+                                transfers: [
+                                    sshTransfer(
+                                        sourceFiles: 'ansible/**,code/**',
+                                        remoteDirectory: '/projects/multi-branch-testing',
+                                        execCommand: '''
+                                            cd /projects/multi-branch-testing/ansible &&
+                                            ansible-playbook -i hosts deploy.yml \
+                                            --limit prod \
+                                            --vault-password-file <(echo $VAULT_PASS)
+                                        '''
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                }
             }
         }
     }
