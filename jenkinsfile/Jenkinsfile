@@ -29,7 +29,7 @@ pipeline {
                                             cd /projects/multi-branch-testing/ansible &&
                                             ansible-playbook -i hosts deploy.yml \
                                             --limit dev \
-                                            --vault-password-file <(echo $VAULT_PASS)
+                                            --ask-vault-pass <(echo $VAULT_PASS)
                                         '''
                                     )
                                 ]
@@ -60,7 +60,7 @@ pipeline {
                                             cd /projects/multi-branch-testing/ansible &&
                                             ansible-playbook -i hosts deploy.yml \
                                             --limit prod \
-                                            --vault-password-file <(echo $VAULT_PASS)
+                                            --ask-vault-pass <(echo $VAULT_PASS)
                                         '''
                                     )
                                 ]
