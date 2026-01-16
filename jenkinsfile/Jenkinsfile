@@ -11,7 +11,7 @@ pipeline {
 
         stage('Deploy to Dev') {
             when {
-                expression { env.GIT_BRANCH?.endsWith('/dev') }
+                branch 'dev'
             }
             steps {
                 withCredentials([
@@ -26,10 +26,14 @@ pipeline {
                                         sourceFiles: 'ansible/**,code/**',
                                         remoteDirectory: '/projects/multi-branch-testing',
                                         execCommand: '''
-                                            cd /projects/multi-branch-testing/ansible &&
+                                            set -e
+                                            cd /projects/multi-branch-testing/ansible
+                                            echo "$VAULT_PASS" > /tmp/.vault_pass
+                                            chmod 600 /tmp/.vault_pass
                                             ansible-playbook -i hosts deploy.yml \
-                                            --limit dev \
-                                            --ask-vault-pass <(echo $VAULT_PASS)
+                                              --limit dev \
+                                              --vault-password-file /tmp/.vault_pass
+                                            rm -f /tmp/.vault_pass
                                         '''
                                     )
                                 ]
@@ -42,7 +46,7 @@ pipeline {
 
         stage('Deploy to Prod') {
             when {
-                expression { env.GIT_BRANCH?.endsWith('/main') }
+                branch 'main'
             }
             steps {
                 withCredentials([
@@ -57,10 +61,14 @@ pipeline {
                                         sourceFiles: 'ansible/**,code/**',
                                         remoteDirectory: '/projects/multi-branch-testing',
                                         execCommand: '''
-                                            cd /projects/multi-branch-testing/ansible &&
+                                            set -e
+                                            cd /projects/multi-branch-testing/ansible
+                                            echo "$VAULT_PASS" > /tmp/.vault_pass
+                                            chmod 600 /tmp/.vault_pass
                                             ansible-playbook -i hosts deploy.yml \
-                                            --limit prod \
-                                            --ask-vault-pass <(echo $VAULT_PASS)
+                                              --limit prod \
+                                              --vault-password-file /tmp/.vault_pass
+                                            rm -f /tmp/.vault_pass
                                         '''
                                     )
                                 ]
