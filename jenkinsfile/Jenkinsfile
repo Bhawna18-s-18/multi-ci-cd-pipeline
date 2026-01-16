@@ -9,13 +9,21 @@ pipeline {
             }
         }
 
+        // Debug stage – optional (1–2 runs ke baad hata sakti ho)
+        stage('Debug Branch') {
+            steps {
+                echo "GIT_BRANCH  = ${env.GIT_BRANCH}"
+                echo "BRANCH_NAME = ${env.BRANCH_NAME}"
+            }
+        }
+
         stage('Deploy to Dev') {
             when {
-                branch 'dev'
+                expression { env.GIT_BRANCH?.endsWith('/dev') }
             }
             steps {
                 withCredentials([
-                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
+                    string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')
                 ]) {
                     sshPublisher(
                         publishers: [
@@ -46,11 +54,11 @@ pipeline {
 
         stage('Deploy to Prod') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH?.endsWith('/main') }
             }
             steps {
                 withCredentials([
-                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
+                    string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')
                 ]) {
                     sshPublisher(
                         publishers: [
