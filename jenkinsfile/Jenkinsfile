@@ -15,7 +15,7 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')
+                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
                 ]) {
                     sshPublisher(
                         publishers: [
@@ -46,7 +46,7 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')
+                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
                 ]) {
                     sshPublisher(
                         publishers: [
