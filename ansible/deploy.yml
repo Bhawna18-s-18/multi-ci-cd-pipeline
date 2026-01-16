@@ -15,6 +15,7 @@
       copy:
         src: /projects/multi-branch-testing/code/index.html
         dest: /var/www/html/index.html
+        force: yes  
       notify: restart apache
 
   handlers:
