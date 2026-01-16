@@ -13,7 +13,7 @@
 
     - name: Deploy website
       copy:
-        src: ../code/index.html
+        src: /projects/multi-branch-testing/code/index.html
         dest: /var/www/html/index.html
       notify: restart apache
 
