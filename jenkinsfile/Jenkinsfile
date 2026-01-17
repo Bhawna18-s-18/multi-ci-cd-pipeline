@@ -36,12 +36,12 @@ pipeline {
                                         execCommand: '''
                                             set -e
                                             cd /projects/multi-branch-testing/ansible
-                                            printf "%s" "${VAULT_PASS}" > /tmp/.vault_pass
-                                            chmod 600 /tmp/.vault_pass
+                                            printf "%s" "${VAULT_PASS}" > .vault_pass
+                                            chmod 600 .vault_pass
                                             ansible-playbook -i hosts deploy.yml \
                                               --limit dev \
-#                                              --vault-password-file /tmp/.vault_pass
-                                            rm -f /tmp/.vault_pass
+#                                              --vault-password-file .vault_pass
+                                            rm -f .vault_pass
                                         '''
                                     )
                                 ]
@@ -71,12 +71,12 @@ pipeline {
                                         execCommand: '''
                                             set -e
                                             cd /projects/multi-branch-testing/ansible
-                                            printf "%s" "${VAULT_PASS}" > /tmp/.vault_pass
-                                            chmod 600 /tmp/.vault_pass
+                                            printf "%s" "${VAULT_PASS}" > .vault_pass
+                                            chmod 600 .vault_pass
                                             ansible-playbook -i hosts deploy.yml \
                                               --limit prod \
-#                                              --vault-password-file /tmp/.vault_pass
-                                            rm -f /tmp/.vault_pass
+#                                              --vault-password-file .vault_pass
+                                            rm -f .vault_pass
                                         '''
                                     )
                                 ]
