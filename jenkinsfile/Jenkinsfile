@@ -4,81 +4,53 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            steps {
-                checkout scm
-            }
+            steps { checkout scm }
         }
 
-        // Debug stage – optional (1–2 runs ke baad hata sakti ho)
-        stage('Debug Branch') {
+        stage('Deploy Dev') {
+            when { expression { env.GIT_BRANCH?.endsWith('/dev') } }
             steps {
-                echo "GIT_BRANCH  = ${env.GIT_BRANCH}"
-                echo "BRANCH_NAME = ${env.BRANCH_NAME}"
-            }
-        }
-
-        stage('Deploy to Dev') {
-            when {
-                expression { env.GIT_BRANCH?.endsWith('/dev') }
-            }
-            steps {
-                withCredentials([
-                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
-                ]) {
-                    sshPublisher(
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'ansible',
-                                transfers: [
-                                    sshTransfer(
-                                        sourceFiles: 'ansible/**,code/**',
-                                        remoteDirectory: '/projects/multi-branch-testing',
-                                        execCommand: '''
-                                            set -e
-                                            cd /projects/multi-branch-testing/ansible
-                                            echo  "${VAULT_PASS}"  | ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
-                                              --limit dev \
-                                              --vault-password-file=/dev/stdin -vv
-                                            
-                                        '''
-                                    )
-                                ]
-                            )
-                        ]
-                    )
+                withCredentials([string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')]) {
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'ansible',
+                            transfers: [sshTransfer(
+                                sourceFiles: 'ansible/**,code/**',
+                                remoteDirectory: '/projects/multi-branch-testing',
+                                execCommand: """
+                                    cd /projects/multi-branch-testing/ansible
+                                    echo "$VAULT_PASS" > .vault_pass
+                                    chmod 600 .vault_pass
+                                    ansible-playbook -i hosts deploy.yml --limit dev --vault-password-file .vault_pass -vv
+                                    rm -f .vault_pass
+                                """
+                            )]
+                        )
+                    ])
                 }
             }
         }
 
-        stage('Deploy to Prod') {
-            when {
-                expression { env.GIT_BRANCH?.endsWith('/main') }
-            }
+        stage('Deploy Prod') {
+            when { expression { env.GIT_BRANCH?.endsWith('/main') } }
             steps {
-                withCredentials([
-                    string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')
-                ]) {
-                    sshPublisher(
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'ansible',
-                                transfers: [
-                                    sshTransfer(
-                                        sourceFiles: 'ansible/**,code/**',
-                                        remoteDirectory: '/projects/multi-branch-testing',
-                                        execCommand: '''
-                                            set -e
-                                            cd /projects/multi-branch-testing/ansible
-                                            echo "${VAULT_PASS}"  |  ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
-                                              --limit prod \
-                                            --vault-password-file=/dev/stdin -vv
-                                           
-                                        '''
-                                    )
-                                ]
-                            )
-                        ]
-                    )
+                withCredentials([string(credentialsId: 'ansible-pass', variable: 'VAULT_PASS')]) {
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'ansible',
+                            transfers: [sshTransfer(
+                                sourceFiles: 'ansible/**,code/**',
+                                remoteDirectory: '/projects/multi-branch-testing',
+                                execCommand: """
+                                    cd /projects/multi-branch-testing/ansible
+                                    echo "$VAULT_PASS" > .vault_pass
+                                    chmod 600 .vault_pass
+                                    ansible-playbook -i hosts deploy.yml --limit prod --vault-password-file .vault_pass -vv
+                                    rm -f .vault_pass
+                                """
+                            )]
+                        )
+                    ])
                 }
             }
         }
