@@ -36,7 +36,7 @@ pipeline {
                                         execCommand: '''
                                             set -e
                                             cd /projects/multi-branch-testing/ansible
-                                            printf "%s" "${VAULT_PASS}" > .vault_pass
+                                            echo -n "${VAULT_PASS}" > .vault_pass
                                             chmod 600 .vault_pass
                                            ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
                                               --limit dev \
@@ -71,7 +71,7 @@ pipeline {
                                         execCommand: '''
                                             set -e
                                             cd /projects/multi-branch-testing/ansible
-                                            printf "%s" "${VAULT_PASS}" > .vault_pass
+                                            echo -n "${VAULT_PASS}" > .vault_pass
                                             chmod 600 .vault_pass
                                             ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
                                               --limit prod \
