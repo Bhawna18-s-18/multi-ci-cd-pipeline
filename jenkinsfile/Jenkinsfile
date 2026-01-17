@@ -34,19 +34,12 @@ pipeline {
                                         sourceFiles: 'ansible/**,code/**',
                                         remoteDirectory: '/projects/multi-branch-testing',
                                         execCommand: '''
-#                                            set -e
+                                            set -e
                                             cd /projects/multi-branch-testing/ansible
-#                                            echo  "${VAULT_PASS}"  | sed 's/\\r//' | tr -d '\n' > .vault_pass
-                                           cat > .vault_pass <<EOF
-${VAULT_PASS}
-EOF 
-					      sed -i 's/\\r//' .vault_pass
-                                            sed -i ':a;N;$!ba;s/\\n//g' .vault_pass
-					   chmod 600 .vault_pass
-                                           ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
+                                            echo  "${VAULT_PASS}"  | ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
                                               --limit dev \
-#                                              --vault-password-file .vault_pass 
-#                                            rm -f .vault_pass
+                                              --vault-password-file=/dev/stdin -vv
+                                            
                                         '''
                                     )
                                 ]
@@ -74,20 +67,12 @@ EOF
                                         sourceFiles: 'ansible/**,code/**',
                                         remoteDirectory: '/projects/multi-branch-testing',
                                         execCommand: '''
-#                                            set -e
+                                            set -e
                                             cd /projects/multi-branch-testing/ansible
-#                                            echo "${VAULT_PASS}"  | sed 's/\\r//' | tr -d '\n' > .vault_pass 
-						cat > .vault_pass <<EOF
-${VAULT_PASS}
-EOF
-
-                                            sed -i 's/\\r//' .vault_pass
-                                            sed -i ':a;N;$!ba;s/\\n//g' .vault_pass
-                                            chmod 600 .vault_pass
-                                            ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
+                                            echo "${VAULT_PASS}"  |  ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
                                               --limit prod \
-#                                              --vault-password-file .vault_pass 
-#                                            rm -f .vault_pass
+                                            --vault-password-file=/dev/stdin -vv
+                                           
                                         '''
                                     )
                                 ]
