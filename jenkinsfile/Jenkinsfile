@@ -40,7 +40,7 @@ pipeline {
                                             chmod 600 .vault_pass
                                            ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
                                               --limit dev \
-#                                              --vault-password-file .vault_pass -vv
+                                              --vault-password-file .vault_pass 
                                             rm -f .vault_pass
                                         '''
                                     )
@@ -75,7 +75,7 @@ pipeline {
                                             chmod 600 .vault_pass
                                             ANSIBLE_LOG_PATH=ansible.log ansible-playbook -i hosts deploy.yml \
                                               --limit prod \
-#                                              --vault-password-file .vault_pass -vv
+                                              --vault-password-file .vault_pass 
                                             rm -f .vault_pass
                                         '''
                                     )
